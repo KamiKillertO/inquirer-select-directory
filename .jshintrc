@@ -1,0 +1,10 @@
+{
+	"devel": true,
+	"esversion": 6,
+	"strict": "global",
+	"node": true,
+	"bitwise" : false,
+	"browser": true,
+	"undef": true,
+	"unused": true
+}
