@@ -3,9 +3,9 @@
 A directory prompt for Inquirer.js [inquirer](https://github.com/SBoudrias/Inquirer.js).
 
 This project is a fork of [Inquirer-directory](https://github.com/nicksrandall/inquirer-directory) which does not limit the navigation to the current folder.
-<!--
-[![Build Status](https://travis-ci.org/nicksrandall/inquirer-directory.svg)](https://travis-ci.org/nicksrandall/inquirer-directory)
--->
+
+[![Issue Count](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory/badges/issue_count.svg)](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory)
+[![Build Status](https://travis-ci.org/KamiKillertO/inquirer-select-directory.svg)](https://travis-ci.org/KamiKillertO/inquirer-select-directory)
 <!--
 ## Installation
 
