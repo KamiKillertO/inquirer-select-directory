@@ -4,8 +4,11 @@ A directory prompt for Inquirer.js [inquirer](https://github.com/SBoudrias/Inqui
 
 This project is a fork of [Inquirer-directory](https://github.com/nicksrandall/inquirer-directory) which does not limit the navigation to the current folder.
 
-[![Issue Count](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory/badges/issue_count.svg)](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory)
+<!--[![Issue Count](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory/badges/issue_count.svg)](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory)!-->
+![](https://img.shields.io/badge/license-MIT-blue.svg)
+![](https://img.shields.io/badge/release-v0.1.0-blue.svg)
 [![Build Status](https://travis-ci.org/KamiKillertO/inquirer-select-directory.svg)](https://travis-ci.org/KamiKillertO/inquirer-select-directory)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6a963539c4440b69356649c0048ea30)](https://www.codacy.com/app/kamikillerto/inquirer-select-directory?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KamiKillertO/inquirer-select-directory&amp;utm_campaign=Badge_Grade)
 <!--
 ## Installation
 
