@@ -9,13 +9,13 @@ This project is a fork of [Inquirer-directory](https://github.com/nicksrandall/i
 ![](https://img.shields.io/badge/release-v0.1.0-blue.svg)
 [![Build Status](https://travis-ci.org/KamiKillertO/inquirer-select-directory.svg)](https://travis-ci.org/KamiKillertO/inquirer-select-directory)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6a963539c4440b69356649c0048ea30)](https://www.codacy.com/app/kamikillerto/inquirer-select-directory?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KamiKillertO/inquirer-select-directory&amp;utm_campaign=Badge_Grade)
-<!--
+
 ## Installation
 
 ```bash
 npm install --save inquirer-select-directory
 ```
--->
+
 ## Features
 
 - Support for symlinked files
@@ -33,7 +33,7 @@ npm install --save inquirer-select-directory
 This prompt is anonymous, meaning you can register this prompt with the type name you please:
 
 ```javascript
-inquirer.registerPrompt('directory', require('inquirer-directory'));
+inquirer.registerPrompt('directory', require('inquirer-select-directory'));
 inquirer.prompt({
   type: 'directory',
   ...
@@ -53,7 +53,7 @@ See [inquirer](https://github.com/SBoudrias/Inquirer.js) readme for meaning of a
 #### Example
 
 ```javascript
-inquirer.registerPrompt('directory', require('inquirer-directory'));
+inquirer.registerPrompt('directory', require('inquirer-select-directory'));
 inquirer.prompt([{
   type: 'directory',
   name: 'from',
