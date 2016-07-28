@@ -3,7 +3,8 @@
 var expect = require('chai').expect;
 var mock = require('mock-fs');
 var ReadlineStub = require('../helpers/readline');
-var Prompt = require('../../index');
+var Prompt = require('../../src/index');
+var path = require('path');
 
 describe('inquirer-directory', function() {
 
@@ -64,6 +65,7 @@ describe('inquirer-directory', function() {
 
     it('should allow users to drill into folder', function() {
         this.prompt.run();
+        this.rl.moveDown();
         this.rl.enter();
         expect(this.rl.output.__raw__).to.contain('folder1-1');
     });
@@ -71,33 +73,27 @@ describe('inquirer-directory', function() {
     it('should allow users to go back after drilling', function() {
         this.prompt.run();
         this.rl.enter();
-        expect(this.rl.output.__raw__).to.contain('go back');
-        this.rl.moveDown();
+        expect(this.rl.output.__raw__).to.contain('..');
+        this.rl.output.clear();
         this.rl.moveDown();
         this.rl.enter();
         expect(this.rl.output.__raw__).to.contain('zfolder2');
     });
 
-    it('should allow users to go back past basePath', function() {
+    it('should allow users to go past basePath', function() {
         this.prompt.run();
-        this.rl.moveDown();
-        this.rl.moveDown();
-        this.rl.moveDown();
         this.rl.enter();
-        expect(this.rl.output.__raw__).to.contain('> root');
-        expect(this.prompt.opt.choices.realChoices[0].name).to.equal('root');
+        expect(this.rl.output.__raw__).to.contain('..');
+        expect(this.prompt.opt.choices.realChoices[0].name).to.equal('..');
     });
 
     it('should not display back option in root folder', function () {
         this.prompt.run();
-        this.rl.moveDown();
-        this.rl.moveDown();
-        this.rl.moveDown();
-        this.rl.enter();
-        this.rl.enter();
-        expect(this.rl.output.__raw__).to.contain('> root');
-        expect(this.rl.output.__raw__).to.not.contain('go back');
-        expect(this.prompt.opt.choices.realChoices.length).to.equal(2);
+        while (this.prompt.currentPath !==  path.parse(path.resolve('.')).root) {
+            this.rl.output.clear();
+            this.rl.enter();
+        }
+        expect(this.rl.output.__raw__).to.not.contain('..');
     });
     // it('should allow users to press keys to shortcut to that value', function (done) {
     //     prompt.run(function (answer) {
