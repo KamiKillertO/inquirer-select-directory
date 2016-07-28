@@ -1,0 +1,42 @@
+{
+  "name": "inquirer-select-directory",
+  "version": "0.1.0",
+  "description": "A directory prompt for Inquirer.js",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node_modules/.bin/_mocha test/spec",
+    "preversion": "npm test",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KamiKillertO/inquirer-select-directory.git"
+  },
+  "keywords": [
+    "Inquirer",
+    "directory",
+    "prompt"
+  ],
+  "author": "JEGARD Benjamin <kamikillerto@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/KamiKillertO/inquirer-select-directory/issues"
+  },
+  "homepage": "https://github.com/KamiKillertO/inquirer-select-directory#readme",
+  "dependencies": {
+    "chalk": "^1.1.1",
+    "cli-cursor": "^1.0.2",
+    "figures": "^1.4.0",
+    "inquirer": "^1.1.2",
+    "rx-lite": "^4.0.8",
+    "util": "^0.10.3"
+  },
+  "devDependencies": {
+    "lodash": "^3.10.1",
+    "chai": "^3.4.1",
+    "events": "^1.1.0",
+    "mocha": "^2.3.4",
+    "mock-fs": "^3.5.0",
+    "sinon": "^1.17.2"
+  }
+}
