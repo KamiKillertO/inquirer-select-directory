@@ -16,17 +16,12 @@ var Separator = require('inquirer/lib/objects/separator');
 var path = require('path');
 var fs = require('fs');
 
-/**
- * Module exports
- */
-
-module.exports = Prompt;
 
 /**
  * Constants
  */
 var CHOOSE = "choose this directory";
-var BACK = "go back a directory";
+var BACK = "..";
 
 /**
  * Constructor
@@ -34,13 +29,11 @@ var BACK = "go back a directory";
 
 function Prompt() {
     Base.apply(this, arguments);
-
     if (!this.opt.basePath) {
         this.throwParamError("basePath");
     }
-
-    this.depth = 0;
     this.currentPath = path.isAbsolute(this.opt.basePath) ? path.resolve(this.opt.basePath) : path.resolve(process.cwd(), this.opt.basePath);
+    this.root = path.parse(this.currentPath).root;
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
 
@@ -54,7 +47,6 @@ function Prompt() {
     this.paginator = new Paginator();
 }
 util.inherits(Prompt, Base);
-
 
 /**
  * Start the Inquiry session
@@ -145,12 +137,12 @@ Prompt.prototype.render = function() {
         message += chalk.dim("(Use arrow keys)");
     }
 
-
     // Render choices or answer depending on the state
     if (this.status === "answered") {
-        message += chalk.cyan(path.relative(this.opt.basePath, this.currentPath));
+        message += chalk.cyan(this.currentPath);
     } else {
-        message += chalk.bold("\n Current directory: ") + this.opt.basePath + "/" + chalk.cyan(path.relative(this.opt.basePath, this.currentPath));
+        // message += chalk.bold("\n Current directory: ") + path.resolve(this.opt.basePath) + path.sep + chalk.cyan(path.relative(this.opt.basePath, this.currentPath));
+        message += chalk.bold("\n Current directory: ") + chalk.cyan(path.resolve(this.opt.basePath, this.currentPath));
         var choicesStr = listRender(this.opt.choices, this.selected);
         message += "\n" + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
     }
@@ -161,7 +153,6 @@ Prompt.prototype.render = function() {
     }
 
     this.firstRender = false;
-
     this.screen.render(message);
 };
 
@@ -199,7 +190,6 @@ Prompt.prototype.handleSubmit = function(e) {
  */
 Prompt.prototype.handleDrill = function() {
     var choice = this.opt.choices.getChoice(this.selected);
-    this.depth++;
     this.currentPath = path.join(this.currentPath, choice.value);
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
@@ -210,20 +200,17 @@ Prompt.prototype.handleDrill = function() {
  * when user selects ".. back"
  */
 Prompt.prototype.handleBack = function() {
-    if (this.depth > 0) {
-        var choice = this.opt.choices.getChoice(this.selected);
-        this.depth--;
-        this.currentPath = path.dirname(this.currentPath);
-        this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
-        this.selected = 0;
-        this.render();
-    }
+    var choice = this.opt.choices.getChoice(this.selected);
+    this.currentPath = path.dirname(this.currentPath);
+    this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
+    this.selected = 0;
+    this.render();
 };
 
 /**
  * when user selects "choose this folder"
  */
-Prompt.prototype.onSubmit = function(value) {
+Prompt.prototype.onSubmit = function(/*value*/) {
     this.status = "answered";
 
     // Rerender prompt
@@ -231,7 +218,7 @@ Prompt.prototype.onSubmit = function(value) {
 
     this.screen.done();
     cliCursor.show();
-    this.done(path.relative(this.opt.basePath, this.currentPath));
+    this.done(path.resolve(this.opt.basePath, this.currentPath));
 };
 
 
@@ -284,17 +271,17 @@ function findIndex(term) {
  */
 Prompt.prototype.createChoices = function(basePath) {
     var choices = getDirectories(basePath);
+    if (basePath !== this.root) {
+      choices.unshift(BACK);
+    }
     if (choices.length > 0) {
         choices.push(new Separator());
     }
     choices.push(CHOOSE);
-    if (this.depth > 0) {
-        choices.push(new Separator());
-        choices.push(BACK);
-        choices.push(new Separator());
-    }
+    choices.push(new Separator());
     return choices;
 };
+
 
 /**
  * Function for rendering list choices
@@ -332,13 +319,24 @@ function getDirectories(basePath) {
     return fs
         .readdirSync(basePath)
         .filter(function(file) {
-            var stats = fs.lstatSync(path.join(basePath, file));
-            if (stats.isSymbolicLink()) {
+           try {
+                var stats = fs.lstatSync(path.join(basePath, file));
+                if (stats.isSymbolicLink()) {
+                    return false;
+                }
+                var isDir = stats.isDirectory();
+                var isNotDotFile = path.basename(file).indexOf('.') !== 0;
+                return isDir && isNotDotFile;
+            } catch (e) {
                 return false;
             }
-            var isDir = stats.isDirectory();
-            var isNotDotFile = path.basename(file).indexOf('.') !== 0;
-            return isDir && isNotDotFile;
         })
         .sort();
 }
+
+
+/**
+ * Module exports
+ */
+
+module.exports = Prompt;
