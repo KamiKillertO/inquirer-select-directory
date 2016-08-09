@@ -10,7 +10,7 @@ var cliCursor = require("cli-cursor");
 var Base = require("inquirer/lib/prompts/base");
 var observe = require("inquirer/lib/utils/events");
 var Paginator = require("inquirer/lib/utils/paginator");
-var Choices = require('inquirer/lib/objects/choices');
+var Choices = require("inquirer/lib/objects/choices");
 var Separator = require('inquirer/lib/objects/separator');
 
 var path = require("path");
@@ -34,22 +34,22 @@ function listRender(choices, pointer) {
     var output = '';
     var separatorOffset = 0;
 
-    choices.forEach(function(choice, i) {
+    choices.forEach(function(choice, index) {
         if (choice.type === 'separator') {
             separatorOffset++;
-            output += '  ' + choice + '\n';
+            output += "  " + choice + "\n";
             return;
         }
 
-        var isSelected = (i - separatorOffset === pointer);
-        var line = (isSelected ? figures.pointer + ' ' : '  ') + choice.name;
+        var isSelected = (index - separatorOffset === pointer);
+        var line = (isSelected ? figures.pointer + " " : "  ") + choice.name;
         if (isSelected) {
             line = chalk.cyan(line);
         }
-        output += line + ' \n';
+        output += line + " \n";
     });
 
-    return output.replace(/\n$/, '');
+    return output.replace(/\n$/, "");
 }
 
 /**
@@ -67,9 +67,9 @@ function getDirectories(basePath) {
                     return false;
                 }
                 var isDir = stats.isDirectory();
-                var isNotDotFile = path.basename(file).indexOf('.') !== 0;
+                var isNotDotFile = path.basename(file).indexOf(".") !== 0;
                 return isDir && isNotDotFile;
-            } catch (e) {
+            } catch (error) {
                 return false;
             }
         })
@@ -94,7 +94,7 @@ function Prompt() {
     // Make sure no default is set (so it won't be printed)
     this.opt.default = null;
 
-    this.searchTerm = '';
+    this.searchTerm = "";
 
     this.paginator = new Paginator();
 }
@@ -102,48 +102,48 @@ util.inherits(Prompt, Base);
 
 /**
  * Start the Inquiry session
- * @param  {Function} cb      Callback when prompt is done
+ * @param  {Function} callback      Callback when prompt is done
  * @return {this}
  */
 
-Prompt.prototype._run = function(cb) {
+Prompt.prototype._run = function(callback) {
     var self = this;
     self.searchMode = false;
-    this.done = cb;
+    this.done = callback;
     var alphaNumericRegex = /\w|\.|\-/i;
     var events = observe(this.rl);
 
-    var keyUps = events.keypress.filter(function(e) {
-        return e.key.name === 'up' || (!self.searchMode && e.key.name === 'k');
+    var keyUps = events.keypress.filter(function(evt) {
+        return evt.key.name === "up" || (!self.searchMode && evt.key.name === "k");
     }).share();
 
-    var keyDowns = events.keypress.filter(function(e) {
-        return e.key.name === 'down' || (!self.searchMode && e.key.name === 'j');
+    var keyDowns = events.keypress.filter(function(evt) {
+        return evt.key.name === "down" || (!self.searchMode && evt.key.name === "j");
     }).share();
 
-    var keySlash = events.keypress.filter(function(e) {
-        return e.value === '/';
+    var keySlash = events.keypress.filter(function(evt) {
+        return evt.value === "/";
     }).share();
 
-    var keyMinus = events.keypress.filter(function(e) {
-        return e.value === '-';
+    var keyMinus = events.keypress.filter(function(evt) {
+        return evt.value === "-";
     }).share();
 
-    var alphaNumeric = events.keypress.filter(function(e) {
-        return e.key.name === 'backspace' || alphaNumericRegex.test(e.value);
+    var alphaNumeric = events.keypress.filter(function(evt) {
+        return evt.key.name === "backspace" || alphaNumericRegex.test(evt.value);
     }).share();
 
     var searchTerm = keySlash.flatMap(function() {
         self.searchMode = true;
-        self.searchTerm = '';
+        self.searchTerm = "";
         self.render();
         var end$ = new rx.Subject();
         var done$ = rx.Observable.merge(events.line, end$);
-        return alphaNumeric.map(function(e) {
-                if (e.key.name === 'backspace' && self.searchTerm.length) {
+        return alphaNumeric.map(function(evt) {
+                if (evt.key.name === 'backspace' && self.searchTerm.length) {
                     self.searchTerm = self.searchTerm.slice(0, -1);
-                } else if (e.value) {
-                    self.searchTerm += e.value;
+                } else if (evt.value) {
+                    self.searchTerm += evt.value;
                 }
                 if (self.searchTerm === '') {
                     end$.onNext(true);
