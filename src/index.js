@@ -2,7 +2,7 @@
 /**
  * `directory` type prompt
  */
-var rx = require('rx-lite');
+var rx = require("rx-lite");
 var util = require("util");
 var chalk = require("chalk");
 var figures = require("figures");
@@ -13,8 +13,8 @@ var Paginator = require("inquirer/lib/utils/paginator");
 var Choices = require('inquirer/lib/objects/choices');
 var Separator = require('inquirer/lib/objects/separator');
 
-var path = require('path');
-var fs = require('fs');
+var path = require("path");
+var fs = require("fs");
 
 
 /**
@@ -23,10 +23,62 @@ var fs = require('fs');
 var CHOOSE = "choose this directory";
 var BACK = "..";
 
+
+
+/**
+ * Function for rendering list choices
+ * @param  {Number} pointer Position of the pointer
+ * @return {String}         Rendered content
+ */
+function listRender(choices, pointer) {
+    var output = '';
+    var separatorOffset = 0;
+
+    choices.forEach(function(choice, i) {
+        if (choice.type === 'separator') {
+            separatorOffset++;
+            output += '  ' + choice + '\n';
+            return;
+        }
+
+        var isSelected = (i - separatorOffset === pointer);
+        var line = (isSelected ? figures.pointer + ' ' : '  ') + choice.name;
+        if (isSelected) {
+            line = chalk.cyan(line);
+        }
+        output += line + ' \n';
+    });
+
+    return output.replace(/\n$/, '');
+}
+
+/**
+ * Function for getting list of folders in directory
+ * @param  {String} basePath the path the folder to get a list of containing folders
+ * @return {Array}           array of folder names inside of basePath
+ */
+function getDirectories(basePath) {
+    return fs
+        .readdirSync(basePath)
+        .filter(function(file) {
+           try {
+                var stats = fs.lstatSync(path.join(basePath, file));
+                if (stats.isSymbolicLink()) {
+                    return false;
+                }
+                var isDir = stats.isDirectory();
+                var isNotDotFile = path.basename(file).indexOf('.') !== 0;
+                return isDir && isNotDotFile;
+            } catch (e) {
+                return false;
+            }
+        })
+        .sort();
+}
+
 /**
  * Constructor
  */
-
 function Prompt() {
     Base.apply(this, arguments);
     if (!this.opt.basePath) {
@@ -81,7 +133,7 @@ Prompt.prototype._run = function(cb) {
         return e.key.name === 'backspace' || alphaNumericRegex.test(e.value);
     }).share();
 
-    var searchTerm = keySlash.flatMap(function(md) {
+    var searchTerm = keySlash.flatMap(function() {
         self.searchMode = true;
         self.searchTerm = '';
         self.render();
@@ -159,6 +211,9 @@ Prompt.prototype.render = function() {
 
 /**
  * When user press `enter` key
+ *
+ * @param {any} e
+ * @returns
  */
 Prompt.prototype.handleSubmit = function(e) {
     var self = this;
@@ -200,7 +255,6 @@ Prompt.prototype.handleDrill = function() {
  * when user selects ".. back"
  */
 Prompt.prototype.handleBack = function() {
-    var choice = this.opt.choices.getChoice(this.selected);
     this.currentPath = path.dirname(this.currentPath);
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
@@ -243,28 +297,21 @@ Prompt.prototype.onDownKey = function() {
     this.render();
 };
 
-Prompt.prototype.onSlashKey = function(e) {
+Prompt.prototype.onSlashKey = function(/*e*/) {
     this.render();
 };
 
-Prompt.prototype.onKeyPress = function(e) {
-    var index = findIndex.call(this, this.searchTerm);
-    if (index >= 0) {
-        this.selected = index;
-    }
-    this.render();
-};
-
-function findIndex(term) {
+Prompt.prototype.onKeyPress = function(/*e*/) {
     var item;
-    for (var i = 0; i < this.opt.choices.realLength; i++) {
-        item = this.opt.choices.realChoices[i].name.toLowerCase();
-        if (item.indexOf(term) === 0) {
-            return i;
+    for (var index = 0; index < this.opt.choices.realLength; index++) {
+        item = this.opt.choices.realChoices[index].name.toLowerCase();
+        if (item.indexOf(this.searchTerm) === 0) {
+            this.selected = index;
+            break;
         }
     }
-    return -1;
-}
+    this.render();
+};
 
 /**
  * Helper to create new choices based on previous selection.
@@ -281,58 +328,6 @@ Prompt.prototype.createChoices = function(basePath) {
     choices.push(new Separator());
     return choices;
 };
-
-
-/**
- * Function for rendering list choices
- * @param  {Number} pointer Position of the pointer
- * @return {String}         Rendered content
- */
-function listRender(choices, pointer) {
-    var output = '';
-    var separatorOffset = 0;
-
-    choices.forEach(function(choice, i) {
-        if (choice.type === 'separator') {
-            separatorOffset++;
-            output += '  ' + choice + '\n';
-            return;
-        }
-
-        var isSelected = (i - separatorOffset === pointer);
-        var line = (isSelected ? figures.pointer + ' ' : '  ') + choice.name;
-        if (isSelected) {
-            line = chalk.cyan(line);
-        }
-        output += line + ' \n';
-    });
-
-    return output.replace(/\n$/, '');
-}
-
-/**
- * Function for getting list of folders in directory
- * @param  {String} basePath the path the folder to get a list of containing folders
- * @return {Array}           array of folder names inside of basePath
- */
-function getDirectories(basePath) {
-    return fs
-        .readdirSync(basePath)
-        .filter(function(file) {
-           try {
-                var stats = fs.lstatSync(path.join(basePath, file));
-                if (stats.isSymbolicLink()) {
-                    return false;
-                }
-                var isDir = stats.isDirectory();
-                var isNotDotFile = path.basename(file).indexOf('.') !== 0;
-                return isDir && isNotDotFile;
-            } catch (e) {
-                return false;
-            }
-        })
-        .sort();
-}
 
 
 /**

@@ -42,7 +42,7 @@ _.assign(ReadlineStub.prototype, stub);
 
 ReadlineStub.prototype.keyPress = function(letter) {
     this.input.emit('keypress', letter, {
-        name: letter,
+        name: letter
     });
 };
 ReadlineStub.prototype.moveDown = function() {

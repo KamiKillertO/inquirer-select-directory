@@ -42,7 +42,7 @@ describe('inquirer-directory', function() {
         expect(function() {
             new Prompt({
                 message: 'foo',
-                name: 'name',
+                name: 'name'
             });
         }).to.throw(/basePath/);
     });
