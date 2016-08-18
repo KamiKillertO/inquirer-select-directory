@@ -89,8 +89,6 @@ function Prompt() {
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
 
-    this.firstRender = true;
-
     // Make sure no default is set (so it won't be printed)
     this.opt.default = null;
 
@@ -185,26 +183,22 @@ Prompt.prototype.render = function() {
     // Render question
     var message = this.getQuestion();
 
-    if (this.firstRender) {
-        message += chalk.dim("(Use arrow keys)");
-    }
-
     // Render choices or answer depending on the state
     if (this.status === "answered") {
         message += chalk.cyan(this.currentPath);
     } else {
         // message += chalk.bold("\n Current directory: ") + path.resolve(this.opt.basePath) + path.sep + chalk.cyan(path.relative(this.opt.basePath, this.currentPath));
         message += chalk.bold("\n Current directory: ") + chalk.cyan(path.resolve(this.opt.basePath, this.currentPath));
+        message += chalk.bold("\n");
         var choicesStr = listRender(this.opt.choices, this.selected);
         message += "\n" + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
+        message += chalk.dim("\n(Use arrow keys)");
     }
     if (this.searchMode) {
         message += ("\nSearch: " + this.searchTerm);
     } else {
         message += "\n(Use \"/\" key to search this directory)";
     }
-
-    this.firstRender = false;
     this.screen.render(message);
 };
 
