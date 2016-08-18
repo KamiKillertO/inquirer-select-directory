@@ -109,13 +109,16 @@ describe('inquirer-directory', function() {
         this.prompt.run();
         expect(this.rl.output.__raw__).to.not.contain('Search:');
         this.rl.keyPress('/');
+        var raw = this.rl.output.__raw__.replace('❯', '>');
+        expect(raw).to.not.contain('> folder1');
         expect(this.rl.output.__raw__).to.contain('Search:');
-
-        expect(this.rl.output.__raw__).to.not.contain('> folder1');
         this.rl.keyPress('f');
-        expect(this.rl.output.__raw__).to.contain('> folder1');
-        this.rl.sendWord('older2')
-        expect(this.rl.output.__raw__).to.contain('> folder2');
+
+        raw = this.rl.output.__raw__.replace('❯', '>');
+        expect(raw).to.have.string('> folder1');
+        this.rl.sendWord('older2');
+        raw = this.rl.output.__raw__.replace('❯', '>');
+        expect(raw).to.contain('> folder2');
     });
     // it('should allow users to press keys to shortcut to that value', function (done) {
     //     prompt.run(function (answer) {
