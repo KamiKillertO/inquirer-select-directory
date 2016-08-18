@@ -15,6 +15,7 @@ describe('inquirer-directory', function() {
                 'folder1': {
                     'folder1-1': {}
                 },
+                'folder2': {},
                 'zfolder2': {},
                 'some.png': new Buffer([8, 6, 7, 5, 3, 0, 9]),
                 'a-symlink': mock.symlink({
@@ -50,6 +51,7 @@ describe('inquirer-directory', function() {
     it('should list folders', function() {
         this.prompt.run();
         expect(this.rl.output.__raw__).to.contain('folder1');
+        expect(this.rl.output.__raw__).to.contain('folder2');
         expect(this.rl.output.__raw__).to.contain('zfolder2');
     });
 
@@ -74,8 +76,8 @@ describe('inquirer-directory', function() {
         this.prompt.run();
         this.rl.enter();
         expect(this.rl.output.__raw__).to.contain('..');
-        this.rl.output.clear();
         this.rl.moveDown();
+        expect(this.rl.output.__raw__).to.not.contain('zfolder2');
         this.rl.enter();
         expect(this.rl.output.__raw__).to.contain('zfolder2');
     });
@@ -90,10 +92,30 @@ describe('inquirer-directory', function() {
     it('should not display back option in root folder', function () {
         this.prompt.run();
         while (this.prompt.currentPath !==  path.parse(path.resolve('.')).root) {
-            this.rl.output.clear();
             this.rl.enter();
         }
         expect(this.rl.output.__raw__).to.not.contain('..');
+    });
+
+    it('should allow users to go back using "-" shortcut', function() {
+        this.prompt.run();
+        expect(this.rl.output.__raw__).to.contain('zfolder2');
+        this.rl.keyPress('-');
+        expect(this.rl.output.__raw__).to.contain('..');
+        expect(this.rl.output.__raw__).to.not.contain('zfolder2');
+    });
+
+    it('should allow users search for a folder using "/" shortcut', function() {
+        this.prompt.run();
+        expect(this.rl.output.__raw__).to.not.contain('Search:');
+        this.rl.keyPress('/');
+        expect(this.rl.output.__raw__).to.contain('Search:');
+
+        expect(this.rl.output.__raw__).to.not.contain('> folder1');
+        this.rl.keyPress('f');
+        expect(this.rl.output.__raw__).to.contain('> folder1');
+        this.rl.sendWord('older2')
+        expect(this.rl.output.__raw__).to.contain('> folder2');
     });
     // it('should allow users to press keys to shortcut to that value', function (done) {
     //     prompt.run(function (answer) {
