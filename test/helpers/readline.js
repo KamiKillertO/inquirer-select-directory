@@ -6,6 +6,8 @@ var _ = require('lodash');
 
 var stub = {};
 
+var isArray = util.isArray || Array.isArray;
+
 _.extend(stub, {
     write: sinon.stub().returns(stub),
     moveCursor: sinon.stub().returns(stub),
@@ -41,21 +43,31 @@ util.inherits(ReadlineStub, EventEmitter);
 _.assign(ReadlineStub.prototype, stub);
 
 ReadlineStub.prototype.keyPress = function(letter) {
+    this.output.clear();
     this.input.emit('keypress', letter, {
         name: letter
     });
 };
+ReadlineStub.prototype.sendWord = function(word) {
+    word = word || '';
+    word.split('').forEach(function(letter) {
+        this.keyPress(letter);
+    }, this);
+};
 ReadlineStub.prototype.moveDown = function() {
+    this.output.clear();
     this.input.emit('keypress', '', {
         name: 'down'
     });
 };
 ReadlineStub.prototype.moveUp = function() {
+    this.output.clear();
     this.input.emit('keypress', '', {
         name: 'up'
     });
 };
 ReadlineStub.prototype.enter = function() {
+    this.output.clear();
     this.emit('line');
 };
 
