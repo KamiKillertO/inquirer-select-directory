@@ -192,13 +192,13 @@ Prompt.prototype.render = function() {
         message += chalk.bold("\n");
         var choicesStr = listRender(this.opt.choices, this.selected);
         message += "\n" + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
-        message += chalk.dim("\n(Use arrow keys)");
     }
     if (this.searchMode) {
         message += ("\nSearch: " + this.searchTerm);
     } else {
-        message += "\n(Use \"/\" key to search this directory)";
+        message += chalk.dim("\n(Use \"/\" key to search this directory)");
     }
+    message += chalk.dim("\n(Use arrow keys)");
     this.screen.render(message);
 };
 
