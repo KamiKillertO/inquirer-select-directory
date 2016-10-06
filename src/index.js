@@ -196,7 +196,8 @@ Prompt.prototype.render = function() {
     if (this.searchMode) {
         message += ("\nSearch: " + this.searchTerm);
     } else {
-        message += chalk.dim("\n(Use \"/\" key to search this directory)");
+        message += chalk.dim('\n(Use "/" key to search this directory)');
+        message += chalk.dim('\n(Use "-" key to navigate to the parent folder');
     }
     message += chalk.dim("\n(Use arrow keys)");
     this.screen.render(message);
