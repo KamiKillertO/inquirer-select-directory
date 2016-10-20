@@ -22,6 +22,7 @@ var fs = require("fs");
  */
 var CHOOSE = "choose this directory";
 var BACK = "..";
+var CURRENT = ".";
 
 
 
@@ -217,7 +218,7 @@ Prompt.prototype.handleSubmit = function(e) {
     }).share();
 
     var done = obx.filter(function(choice) {
-        return choice === CHOOSE;
+        return choice === CHOOSE || choice === CURRENT;
     }).take(1);
 
     var back = obx.filter(function(choice) {
@@ -225,7 +226,7 @@ Prompt.prototype.handleSubmit = function(e) {
     }).takeUntil(done);
 
     var drill = obx.filter(function(choice) {
-        return choice !== BACK && choice !== CHOOSE;
+        return choice !== BACK && choice !== CHOOSE && choice !== CURRENT;
     }).takeUntil(done);
 
     return {
@@ -316,6 +317,7 @@ Prompt.prototype.createChoices = function(basePath) {
     if (basePath !== this.root) {
       choices.unshift(BACK);
     }
+    choices.unshift(CURRENT);
     if (choices.length > 0) {
         choices.push(new Separator());
     }
