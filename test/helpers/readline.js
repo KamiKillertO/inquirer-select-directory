@@ -1,8 +1,8 @@
 "use strict";
-var EventEmitter = require('events').EventEmitter;
-var sinon = require('sinon');
-var util = require('util');
-var _ = require('lodash');
+var EventEmitter = require("events").EventEmitter;
+var sinon = require("sinon");
+var util = require("util");
+var _ = require("lodash");
 
 var stub = {};
 
@@ -21,7 +21,7 @@ _.extend(stub, {
         end: sinon.stub(),
         mute: sinon.stub(),
         unmute: sinon.stub(),
-        __raw__: '',
+        __raw__: "",
         write: function(str) {
             this.__raw__ += str;
         },
@@ -32,7 +32,7 @@ _.extend(stub, {
 });
 
 var ReadlineStub = function() {
-    this.line = '';
+    this.line = "";
     this.input = new EventEmitter();
     EventEmitter.apply(this, arguments);
 };
@@ -41,22 +41,32 @@ util.inherits(ReadlineStub, EventEmitter);
 _.assign(ReadlineStub.prototype, stub);
 
 ReadlineStub.prototype.keyPress = function(letter) {
-    this.input.emit('keypress', letter, {
-        name: letter,
+    this.output.clear();
+    this.input.emit("keypress", letter, {
+        name: letter
     });
 };
+ReadlineStub.prototype.sendWord = function(word) {
+    word = word || "";
+    word.split("").forEach(function(letter) {
+        this.keyPress(letter);
+    }, this);
+};
 ReadlineStub.prototype.moveDown = function() {
-    this.input.emit('keypress', '', {
-        name: 'down'
+    this.output.clear();
+    this.input.emit("keypress", "", {
+        name: "down"
     });
 };
 ReadlineStub.prototype.moveUp = function() {
-    this.input.emit('keypress', '', {
-        name: 'up'
+    this.output.clear();
+    this.input.emit("keypress", "", {
+        name: "up"
     });
 };
 ReadlineStub.prototype.enter = function() {
-    this.emit('line');
+    this.output.clear();
+    this.emit("line");
 };
 
 

@@ -4,7 +4,7 @@
 
 "use strict";
 var inquirer = require("inquirer");
-inquirer.registerPrompt('directory', require('../src/index'));
+inquirer.registerPrompt("directory", require("../src/index"));
 
 inquirer.prompt([{
     type: "directory",

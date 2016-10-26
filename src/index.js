@@ -2,7 +2,7 @@
 /**
  * `directory` type prompt
  */
-var rx = require('rx-lite');
+var rx = require("rx-lite");
 var util = require("util");
 var chalk = require("chalk");
 var figures = require("figures");
@@ -10,11 +10,11 @@ var cliCursor = require("cli-cursor");
 var Base = require("inquirer/lib/prompts/base");
 var observe = require("inquirer/lib/utils/events");
 var Paginator = require("inquirer/lib/utils/paginator");
-var Choices = require('inquirer/lib/objects/choices');
-var Separator = require('inquirer/lib/objects/separator');
+var Choices = require("inquirer/lib/objects/choices");
+var Separator = require("inquirer/lib/objects/separator");
 
-var path = require('path');
-var fs = require('fs');
+var path = require("path");
+var fs = require("fs");
 
 
 /**
@@ -22,11 +22,64 @@ var fs = require('fs');
  */
 var CHOOSE = "choose this directory";
 var BACK = "..";
+var CURRENT = ".";
+
+
+
+/**
+ * Function for rendering list choices
+ * @param  {Number} pointer Position of the pointer
+ * @return {String}         Rendered content
+ */
+function listRender(choices, pointer) {
+    var output = "";
+    var separatorOffset = 0;
+
+    choices.forEach(function(choice, index) {
+        if (choice.type === "separator") {
+            separatorOffset++;
+            output += "  " + choice + "\n";
+            return;
+        }
+
+        var isSelected = (index - separatorOffset === pointer);
+        var line = (isSelected ? figures.pointer + " " : "  ") + choice.name;
+        if (isSelected) {
+            line = chalk.cyan(line);
+        }
+        output += line + " \n";
+    });
+
+    return output.replace(/\n$/, "");
+}
+
+/**
+ * Function for getting list of folders in directory
+ * @param  {String} basePath the path the folder to get a list of containing folders
+ * @return {Array}           array of folder names inside of basePath
+ */
+function getDirectories(basePath) {
+    return fs
+        .readdirSync(basePath)
+        .filter(function(file) {
+           try {
+                var stats = fs.lstatSync(path.join(basePath, file));
+                if (stats.isSymbolicLink()) {
+                    return false;
+                }
+                var isDir = stats.isDirectory();
+                var isNotDotFile = path.basename(file).indexOf(".") !== 0;
+                return isDir && isNotDotFile;
+            } catch (error) {
+                return false;
+            }
+        })
+        .sort();
+}
 
 /**
  * Constructor
  */
-
 function Prompt() {
     Base.apply(this, arguments);
     if (!this.opt.basePath) {
@@ -37,12 +90,10 @@ function Prompt() {
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
 
-    this.firstRender = true;
-
-    // Make sure no default is set (so it won't be printed)
+    // Make sure no default is set (so it won"t be printed)
     this.opt.default = null;
 
-    this.searchTerm = '';
+    this.searchTerm = "";
 
     this.paginator = new Paginator();
 }
@@ -50,50 +101,50 @@ util.inherits(Prompt, Base);
 
 /**
  * Start the Inquiry session
- * @param  {Function} cb      Callback when prompt is done
+ * @param  {Function} callback      Callback when prompt is done
  * @return {this}
  */
 
-Prompt.prototype._run = function(cb) {
+Prompt.prototype._run = function(callback) {
     var self = this;
     self.searchMode = false;
-    this.done = cb;
+    this.done = callback;
     var alphaNumericRegex = /\w|\.|\-/i;
     var events = observe(this.rl);
 
-    var keyUps = events.keypress.filter(function(e) {
-        return e.key.name === 'up' || (!self.searchMode && e.key.name === 'k');
+    var keyUps = events.keypress.filter(function(evt) {
+        return evt.key.name === "up" || (!self.searchMode && evt.key.name === "k");
     }).share();
 
-    var keyDowns = events.keypress.filter(function(e) {
-        return e.key.name === 'down' || (!self.searchMode && e.key.name === 'j');
+    var keyDowns = events.keypress.filter(function(evt) {
+        return evt.key.name === "down" || (!self.searchMode && evt.key.name === "j");
     }).share();
 
-    var keySlash = events.keypress.filter(function(e) {
-        return e.value === '/';
+    var keySlash = events.keypress.filter(function(evt) {
+        return evt.value === "/";
     }).share();
 
-    var keyMinus = events.keypress.filter(function(e) {
-        return e.value === '-';
+    var keyMinus = events.keypress.filter(function(evt) {
+        return evt.value === "-";
     }).share();
 
-    var alphaNumeric = events.keypress.filter(function(e) {
-        return e.key.name === 'backspace' || alphaNumericRegex.test(e.value);
+    var alphaNumeric = events.keypress.filter(function(evt) {
+        return evt.key.name === "backspace" || alphaNumericRegex.test(evt.value);
     }).share();
 
-    var searchTerm = keySlash.flatMap(function(md) {
+    var searchTerm = keySlash.flatMap(function() {
         self.searchMode = true;
-        self.searchTerm = '';
+        self.searchTerm = "";
         self.render();
         var end$ = new rx.Subject();
         var done$ = rx.Observable.merge(events.line, end$);
-        return alphaNumeric.map(function(e) {
-                if (e.key.name === 'backspace' && self.searchTerm.length) {
+        return alphaNumeric.map(function(evt) {
+                if (evt.key.name === "backspace" && self.searchTerm.length) {
                     self.searchTerm = self.searchTerm.slice(0, -1);
-                } else if (e.value) {
-                    self.searchTerm += e.value;
+                } else if (evt.value) {
+                    self.searchTerm += evt.value;
                 }
-                if (self.searchTerm === '') {
+                if (self.searchTerm === "") {
                     end$.onNext(true);
                 }
                 return self.searchTerm;
@@ -133,32 +184,32 @@ Prompt.prototype.render = function() {
     // Render question
     var message = this.getQuestion();
 
-    if (this.firstRender) {
-        message += chalk.dim("(Use arrow keys)");
-    }
-
     // Render choices or answer depending on the state
     if (this.status === "answered") {
         message += chalk.cyan(this.currentPath);
     } else {
         // message += chalk.bold("\n Current directory: ") + path.resolve(this.opt.basePath) + path.sep + chalk.cyan(path.relative(this.opt.basePath, this.currentPath));
         message += chalk.bold("\n Current directory: ") + chalk.cyan(path.resolve(this.opt.basePath, this.currentPath));
+        message += chalk.bold("\n");
         var choicesStr = listRender(this.opt.choices, this.selected);
         message += "\n" + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
+        if (this.searchMode) {
+            message += ("\nSearch: " + this.searchTerm);
+        } else {
+            message += chalk.dim("\n(Use "/" key to search this directory)");
+            message += chalk.dim("\n(Use "-" key to navigate to the parent folder");
+        }
+        message += chalk.dim("\n(Use arrow keys)");
     }
-    if (this.searchMode) {
-        message += ("\nSearch: " + this.searchTerm);
-    } else {
-        message += "\n(Use \"/\" key to search this directory)";
-    }
-
-    this.firstRender = false;
     this.screen.render(message);
 };
 
 
 /**
  * When user press `enter` key
+ *
+ * @param {any} e
+ * @returns
  */
 Prompt.prototype.handleSubmit = function(e) {
     var self = this;
@@ -167,15 +218,14 @@ Prompt.prototype.handleSubmit = function(e) {
     }).share();
 
     var done = obx.filter(function(choice) {
-        return choice === CHOOSE;
+        return choice === CHOOSE || choice === CURRENT;
     }).take(1);
-
     var back = obx.filter(function(choice) {
         return choice === BACK;
     }).takeUntil(done);
 
     var drill = obx.filter(function(choice) {
-        return choice !== BACK && choice !== CHOOSE;
+        return choice !== BACK && choice !== CHOOSE && choice !== CURRENT;
     }).takeUntil(done);
 
     return {
@@ -200,7 +250,6 @@ Prompt.prototype.handleDrill = function() {
  * when user selects ".. back"
  */
 Prompt.prototype.handleBack = function() {
-    var choice = this.opt.choices.getChoice(this.selected);
     this.currentPath = path.dirname(this.currentPath);
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
@@ -243,28 +292,21 @@ Prompt.prototype.onDownKey = function() {
     this.render();
 };
 
-Prompt.prototype.onSlashKey = function(e) {
+Prompt.prototype.onSlashKey = function(/*e*/) {
     this.render();
 };
 
-Prompt.prototype.onKeyPress = function(e) {
-    var index = findIndex.call(this, this.searchTerm);
-    if (index >= 0) {
-        this.selected = index;
-    }
-    this.render();
-};
-
-function findIndex(term) {
+Prompt.prototype.onKeyPress = function(/*e*/) {
     var item;
-    for (var i = 0; i < this.opt.choices.realLength; i++) {
-        item = this.opt.choices.realChoices[i].name.toLowerCase();
-        if (item.indexOf(term) === 0) {
-            return i;
+    for (var index = 0; index < this.opt.choices.realLength; index++) {
+        item = this.opt.choices.realChoices[index].name.toLowerCase();
+        if (item.indexOf(this.searchTerm) === 0) {
+            this.selected = index;
+            break;
         }
     }
-    return -1;
-}
+    this.render();
+};
 
 /**
  * Helper to create new choices based on previous selection.
@@ -274,6 +316,7 @@ Prompt.prototype.createChoices = function(basePath) {
     if (basePath !== this.root) {
       choices.unshift(BACK);
     }
+    choices.unshift(CURRENT);
     if (choices.length > 0) {
         choices.push(new Separator());
     }
@@ -281,58 +324,6 @@ Prompt.prototype.createChoices = function(basePath) {
     choices.push(new Separator());
     return choices;
 };
-
-
-/**
- * Function for rendering list choices
- * @param  {Number} pointer Position of the pointer
- * @return {String}         Rendered content
- */
-function listRender(choices, pointer) {
-    var output = '';
-    var separatorOffset = 0;
-
-    choices.forEach(function(choice, i) {
-        if (choice.type === 'separator') {
-            separatorOffset++;
-            output += '  ' + choice + '\n';
-            return;
-        }
-
-        var isSelected = (i - separatorOffset === pointer);
-        var line = (isSelected ? figures.pointer + ' ' : '  ') + choice.name;
-        if (isSelected) {
-            line = chalk.cyan(line);
-        }
-        output += line + ' \n';
-    });
-
-    return output.replace(/\n$/, '');
-}
-
-/**
- * Function for getting list of folders in directory
- * @param  {String} basePath the path the folder to get a list of containing folders
- * @return {Array}           array of folder names inside of basePath
- */
-function getDirectories(basePath) {
-    return fs
-        .readdirSync(basePath)
-        .filter(function(file) {
-           try {
-                var stats = fs.lstatSync(path.join(basePath, file));
-                if (stats.isSymbolicLink()) {
-                    return false;
-                }
-                var isDir = stats.isDirectory();
-                var isNotDotFile = path.basename(file).indexOf('.') !== 0;
-                return isDir && isNotDotFile;
-            } catch (e) {
-                return false;
-            }
-        })
-        .sort();
-}
 
 
 /**
