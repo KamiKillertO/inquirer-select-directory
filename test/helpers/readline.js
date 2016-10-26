@@ -6,8 +6,6 @@ var _ = require('lodash');
 
 var stub = {};
 
-var isArray = util.isArray || Array.isArray;
-
 _.extend(stub, {
     write: sinon.stub().returns(stub),
     moveCursor: sinon.stub().returns(stub),
