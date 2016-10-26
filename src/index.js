@@ -193,14 +193,14 @@ Prompt.prototype.render = function() {
         message += chalk.bold("\n");
         var choicesStr = listRender(this.opt.choices, this.selected);
         message += "\n" + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
+        if (this.searchMode) {
+            message += ("\nSearch: " + this.searchTerm);
+        } else {
+            message += chalk.dim("\n(Use "/" key to search this directory)");
+            message += chalk.dim("\n(Use "-" key to navigate to the parent folder");
+        }
+        message += chalk.dim("\n(Use arrow keys)");
     }
-    if (this.searchMode) {
-        message += ("\nSearch: " + this.searchTerm);
-    } else {
-        message += chalk.dim("\n(Use "/" key to search this directory)");
-        message += chalk.dim("\n(Use "-" key to navigate to the parent folder");
-    }
-    message += chalk.dim("\n(Use arrow keys)");
     this.screen.render(message);
 };
 
@@ -220,7 +220,6 @@ Prompt.prototype.handleSubmit = function(e) {
     var done = obx.filter(function(choice) {
         return choice === CHOOSE || choice === CURRENT;
     }).take(1);
-
     var back = obx.filter(function(choice) {
         return choice === BACK;
     }).takeUntil(done);

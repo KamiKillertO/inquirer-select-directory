@@ -101,7 +101,7 @@ describe("inquirer-directory", function() {
         }
         expect(this.rl.output.__raw__).to.not.contain("..");
     });
-    it("should allow users to go back using "-" shortcut", function() {
+    it("should allow users to go back using '-' shortcut", function() {
         this.prompt.run();
         expect(this.rl.output.__raw__).to.contain("zfolder2");
         this.rl.keyPress("-");
@@ -109,7 +109,7 @@ describe("inquirer-directory", function() {
         expect(this.rl.output.__raw__).to.not.contain("zfolder2");
     });
 
-    it("should allow users search for a folder using "/" shortcut", function() {
+    it("should allow users search for a folder using '/' shortcut", function() {
         this.prompt.run();
         expect(this.rl.output.__raw__).to.not.contain("Search:");
         this.rl.keyPress("/");
@@ -123,6 +123,19 @@ describe("inquirer-directory", function() {
         this.rl.sendWord("older2");
         raw = this.rl.output.__raw__.replace("❯", ">");
         expect(raw).to.contain("> folder2");
+    });
+
+    it("should allow users to select a folder using 'choose this directory' choice", function() {
+        this.prompt.run();
+        this.rl.moveUp();
+        this.rl.enter();
+        expect(this.prompt.currentPath.split('/').slice(-1)[0]).to.equal("root");
+    });
+
+    it("should allow users to select a folder using '.' choice", function() {
+        this.prompt.run();
+        this.rl.enter();
+        expect(this.prompt.currentPath.split('/').slice(-1)[0]).to.equal("root");
     });
     // it("should allow users to press keys to shortcut to that value", function (done) {
     //     prompt.run(function (answer) {
