@@ -11,7 +11,7 @@ var Base = require("inquirer/lib/prompts/base");
 var observe = require("inquirer/lib/utils/events");
 var Paginator = require("inquirer/lib/utils/paginator");
 var Choices = require("inquirer/lib/objects/choices");
-var Separator = require('inquirer/lib/objects/separator');
+var Separator = require("inquirer/lib/objects/separator");
 
 var path = require("path");
 var fs = require("fs");
@@ -32,11 +32,11 @@ var CURRENT = ".";
  * @return {String}         Rendered content
  */
 function listRender(choices, pointer) {
-    var output = '';
+    var output = "";
     var separatorOffset = 0;
 
     choices.forEach(function(choice, index) {
-        if (choice.type === 'separator') {
+        if (choice.type === "separator") {
             separatorOffset++;
             output += "  " + choice + "\n";
             return;
@@ -90,7 +90,7 @@ function Prompt() {
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
 
-    // Make sure no default is set (so it won't be printed)
+    // Make sure no default is set (so it won"t be printed)
     this.opt.default = null;
 
     this.searchTerm = "";
@@ -139,12 +139,12 @@ Prompt.prototype._run = function(callback) {
         var end$ = new rx.Subject();
         var done$ = rx.Observable.merge(events.line, end$);
         return alphaNumeric.map(function(evt) {
-                if (evt.key.name === 'backspace' && self.searchTerm.length) {
+                if (evt.key.name === "backspace" && self.searchTerm.length) {
                     self.searchTerm = self.searchTerm.slice(0, -1);
                 } else if (evt.value) {
                     self.searchTerm += evt.value;
                 }
-                if (self.searchTerm === '') {
+                if (self.searchTerm === "") {
                     end$.onNext(true);
                 }
                 return self.searchTerm;
@@ -193,14 +193,14 @@ Prompt.prototype.render = function() {
         message += chalk.bold("\n");
         var choicesStr = listRender(this.opt.choices, this.selected);
         message += "\n" + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
+        if (this.searchMode) {
+            message += ("\nSearch: " + this.searchTerm);
+        } else {
+            message += chalk.dim("\n(Use "/" key to search this directory)");
+            message += chalk.dim("\n(Use "-" key to navigate to the parent folder");
+        }
+        message += chalk.dim("\n(Use arrow keys)");
     }
-    if (this.searchMode) {
-        message += ("\nSearch: " + this.searchTerm);
-    } else {
-        message += chalk.dim('\n(Use "/" key to search this directory)');
-        message += chalk.dim('\n(Use "-" key to navigate to the parent folder');
-    }
-    message += chalk.dim("\n(Use arrow keys)");
     this.screen.render(message);
 };
 
@@ -220,7 +220,6 @@ Prompt.prototype.handleSubmit = function(e) {
     var done = obx.filter(function(choice) {
         return choice === CHOOSE || choice === CURRENT;
     }).take(1);
-
     var back = obx.filter(function(choice) {
         return choice === BACK;
     }).takeUntil(done);
