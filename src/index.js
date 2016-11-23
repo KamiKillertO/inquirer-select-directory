@@ -55,10 +55,12 @@ function listRender(choices, pointer) {
 
 /**
  * Function for getting list of folders in directory
- * @param  {String} basePath the path the folder to get a list of containing folders
- * @return {Array}           array of folder names inside of basePath
+ * @param  {String} basePath                the path the folder to get a list of containing folders
+ * @param  {Boolean} [displayHidden=false]  set to true if you want to get hidden files
+ * @return {Array}                          array of folder names inside of basePath
  */
-function getDirectories(basePath) {
+function getDirectories(basePath, displayHidden) {
+    displayHidden = displayHidden || false;
     return fs
         .readdirSync(basePath)
         .filter(function(file) {
@@ -68,6 +70,9 @@ function getDirectories(basePath) {
                     return false;
                 }
                 var isDir = stats.isDirectory();
+                if (displayHidden) {
+                    return isDir;
+                }
                 var isNotDotFile = path.basename(file).indexOf(".") !== 0;
                 return isDir && isNotDotFile;
             } catch (error) {
@@ -85,6 +90,7 @@ function Prompt() {
     if (!this.opt.basePath) {
         this.throwParamError("basePath");
     }
+    this.opt.displayHidden = this.opt.displayHidden || false;
     this.currentPath = path.isAbsolute(this.opt.basePath) ? path.resolve(this.opt.basePath) : path.resolve(process.cwd(), this.opt.basePath);
     this.root = path.parse(this.currentPath).root;
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
@@ -312,7 +318,7 @@ Prompt.prototype.onKeyPress = function(/*e*/) {
  * Helper to create new choices based on previous selection.
  */
 Prompt.prototype.createChoices = function(basePath) {
-    var choices = getDirectories(basePath);
+    var choices = getDirectories(basePath, this.opt.displayHidden);
     if (basePath !== this.root) {
       choices.unshift(BACK);
     }
@@ -331,3 +337,8 @@ Prompt.prototype.createChoices = function(basePath) {
  */
 
 module.exports = Prompt;
+
+
+// TODO: Add option displayHidden id:0
+// TODO: Add option displayFile id:1
+// TODO: Add theming option id:2
