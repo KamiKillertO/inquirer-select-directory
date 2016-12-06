@@ -16,15 +16,12 @@ var Separator = require("inquirer/lib/objects/separator");
 var path = require("path");
 var fs = require("fs");
 
-
 /**
  * Constants
  */
-var CHOOSE = "choose this directory";
-var BACK = "..";
-var CURRENT = ".";
-
-
+var CHOOSE = 'choose this directory';
+var BACK = '..';
+var CURRENT = '.';
 
 /**
  * Function for rendering list choices
@@ -32,25 +29,25 @@ var CURRENT = ".";
  * @return {String}         Rendered content
  */
 function listRender(choices, pointer) {
-    var output = "";
+    var output = '';
     var separatorOffset = 0;
 
     choices.forEach(function(choice, index) {
-        if (choice.type === "separator") {
+        if (choice.type === 'separator') {
             separatorOffset++;
             output += "  " + choice + "\n";
             return;
         }
 
         var isSelected = (index - separatorOffset === pointer);
-        var line = (isSelected ? figures.pointer + " " : "  ") + choice.name;
+        var line = (isSelected ? figures.pointer + ' ' : '  ') + choice.name;
         if (isSelected) {
             line = chalk.cyan(line);
         }
-        output += line + " \n";
+        output += line + ' \n';
     });
 
-    return output.replace(/\n$/, "");
+    return output.replace(/\n$/, '');
 }
 
 /**
@@ -68,7 +65,7 @@ function getDirectories(basePath) {
                     return false;
                 }
                 var isDir = stats.isDirectory();
-                var isNotDotFile = path.basename(file).indexOf(".") !== 0;
+                var isNotDotFile = path.basename(file).indexOf('.') !== 0;
                 return isDir && isNotDotFile;
             } catch (error) {
                 return false;
@@ -83,7 +80,7 @@ function getDirectories(basePath) {
 function Prompt() {
     Base.apply(this, arguments);
     if (!this.opt.basePath) {
-        this.throwParamError("basePath");
+        this.throwParamError('basePath');
     }
     this.currentPath = path.isAbsolute(this.opt.basePath) ? path.resolve(this.opt.basePath) : path.resolve(process.cwd(), this.opt.basePath);
     this.root = path.parse(this.currentPath).root;
@@ -93,7 +90,7 @@ function Prompt() {
     // Make sure no default is set (so it won"t be printed)
     this.opt.default = null;
 
-    this.searchTerm = "";
+    this.searchTerm = '';
 
     this.paginator = new Paginator();
 }
@@ -113,38 +110,38 @@ Prompt.prototype._run = function(callback) {
     var events = observe(this.rl);
 
     var keyUps = events.keypress.filter(function(evt) {
-        return evt.key.name === "up" || (!self.searchMode && evt.key.name === "k");
+        return evt.key.name === 'up' || (!self.searchMode && evt.key.name === 'k');
     }).share();
 
     var keyDowns = events.keypress.filter(function(evt) {
-        return evt.key.name === "down" || (!self.searchMode && evt.key.name === "j");
+        return evt.key.name === 'down' || (!self.searchMode && evt.key.name === 'j');
     }).share();
 
     var keySlash = events.keypress.filter(function(evt) {
-        return evt.value === "/";
+        return evt.value === '/';
     }).share();
 
     var keyMinus = events.keypress.filter(function(evt) {
-        return evt.value === "-";
+        return evt.value === '-';
     }).share();
 
     var alphaNumeric = events.keypress.filter(function(evt) {
-        return evt.key.name === "backspace" || alphaNumericRegex.test(evt.value);
+        return evt.key.name === 'backspace' || alphaNumericRegex.test(evt.value);
     }).share();
 
     var searchTerm = keySlash.flatMap(function() {
         self.searchMode = true;
-        self.searchTerm = "";
+        self.searchTerm = '';
         self.render();
         var end$ = new rx.Subject();
         var done$ = rx.Observable.merge(events.line, end$);
         return alphaNumeric.map(function(evt) {
-                if (evt.key.name === "backspace" && self.searchTerm.length) {
+                if (evt.key.name === 'backspace' && self.searchTerm.length) {
                     self.searchTerm = self.searchTerm.slice(0, -1);
                 } else if (evt.value) {
                     self.searchTerm += evt.value;
                 }
-                if (self.searchTerm === "") {
+                if (self.searchTerm === '') {
                     end$.onNext(true);
                 }
                 return self.searchTerm;
@@ -185,21 +182,20 @@ Prompt.prototype.render = function() {
     var message = this.getQuestion();
 
     // Render choices or answer depending on the state
-    if (this.status === "answered") {
+    if (this.status === 'answered') {
         message += chalk.cyan(this.currentPath);
     } else {
-        // message += chalk.bold("\n Current directory: ") + path.resolve(this.opt.basePath) + path.sep + chalk.cyan(path.relative(this.opt.basePath, this.currentPath));
-        message += chalk.bold("\n Current directory: ") + chalk.cyan(path.resolve(this.opt.basePath, this.currentPath));
-        message += chalk.bold("\n");
+        message += chalk.bold('\n Current directory: ') + chalk.cyan(path.resolve(this.opt.basePath, this.currentPath));
+        message += chalk.bold('\n');
         var choicesStr = listRender(this.opt.choices, this.selected);
-        message += "\n" + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
+        message += '\n' + this.paginator.paginate(choicesStr, this.selected, this.opt.pageSize);
         if (this.searchMode) {
-            message += ("\nSearch: " + this.searchTerm);
+            message += ('\nSearch: ' + this.searchTerm);
         } else {
-            message += chalk.dim("\n(Use "/" key to search this directory)");
-            message += chalk.dim("\n(Use "-" key to navigate to the parent folder");
+            message += chalk.dim('\n(Use "/" key to search this directory)');
+            message += chalk.dim('\n(Use "-" key to navigate to the parent folder');
         }
-        message += chalk.dim("\n(Use arrow keys)");
+        message += chalk.dim('\n(Use arrow keys)');
     }
     this.screen.render(message);
 };
@@ -257,10 +253,10 @@ Prompt.prototype.handleBack = function() {
 };
 
 /**
- * when user selects "choose this folder"
+ * when user selects 'choose this folder'
  */
 Prompt.prototype.onSubmit = function(/*value*/) {
-    this.status = "answered";
+    this.status = 'answered';
 
     // Rerender prompt
     this.render();
