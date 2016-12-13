@@ -129,13 +129,13 @@ describe("inquirer-directory", function() {
         this.prompt.run();
         this.rl.moveUp();
         this.rl.enter();
-        expect(this.prompt.currentPath.split('/').slice(-1)[0]).to.equal("root");
+        expect(this.prompt.currentPath.split(/\/|\\|\\\\/).slice(-1)[0]).to.equal("root");
     });
 
     it("should allow users to select a folder using '.' choice", function() {
         this.prompt.run();
         this.rl.enter();
-        expect(this.prompt.currentPath.split('/').slice(-1)[0]).to.equal("root");
+        expect(this.prompt.currentPath.split(/\/|\\|\\\\/).slice(-1)[0]).to.equal("root");
     });
     // it("should allow users to press keys to shortcut to that value", function (done) {
     //     prompt.run(function (answer) {
