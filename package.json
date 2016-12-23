@@ -26,7 +26,7 @@
   "dependencies": {
     "chalk": "1.1.1",
     "cli-cursor": "1.0.2",
-    "figures": "1.7.0",
+    "figures": "2.0.0",
     "inquirer": "2.0.0",
     "rx-lite": "4.0.8",
     "util": "0.10.3"
@@ -36,7 +36,7 @@
     "chai": "3.4.1",
     "events": "1.1.0",
     "mocha": "3.2.0",
-    "mock-fs": "3.11.0",
+    "mock-fs": "3.12.1",
     "sinon": "1.17.2"
   }
 }
