@@ -32,7 +32,7 @@
     "util": "0.10.3"
   },
   "devDependencies": {
-    "lodash": "4.17.2",
+    "lodash": "4.17.3",
     "chai": "3.4.1",
     "events": "1.1.0",
     "mocha": "3.2.0",
