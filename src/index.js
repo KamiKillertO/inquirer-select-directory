@@ -109,21 +109,22 @@ Prompt.prototype._run = function(callback) {
     var alphaNumericRegex = /\w|\.|\-/i;
     var events = observe(this.rl);
 
+
     var keyUps = events.keypress.filter(function(evt) {
-        return evt.key.name === 'up' || (!self.searchMode && evt.key.name === 'k');
-    }).share();
+       return evt.key.name === 'up';
+   }).share();
 
-    var keyDowns = events.keypress.filter(function(evt) {
-        return evt.key.name === 'down' || (!self.searchMode && evt.key.name === 'j');
-    }).share();
+   var keyDowns = events.keypress.filter(function(evt) {
+       return evt.key.name === 'down';
+   }).share();
 
-    var keySlash = events.keypress.filter(function(evt) {
-        return evt.value === '/';
-    }).share();
+   var keySlash = events.keypress.filter(function(evt) {
+       return evt.value === '/' && !self.searchMode;
+   }).share();
 
-    var keyMinus = events.keypress.filter(function(evt) {
-        return evt.value === '-';
-    }).share();
+   var keyMinus = events.keypress.filter(function(evt) {
+       return evt.value === '-' && !self.searchMode;
+   }).share();
 
     var alphaNumeric = events.keypress.filter(function(evt) {
         return evt.key.name === 'backspace' || alphaNumericRegex.test(evt.value);
