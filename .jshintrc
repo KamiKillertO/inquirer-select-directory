@@ -1,4 +1,7 @@
 {
+    "predef": [
+        "it"
+    ],
 	"devel": true,
 	"esversion": 6,
 	"strict": "global",
