@@ -5,6 +5,7 @@ var mock = require("mock-fs");
 var ReadlineStub = require("../helpers/readline");
 var Prompt = require("../../src/index");
 var path = require("path");
+var figures = require("figures");
 
 describe("inquirer-directory", function() {
 
@@ -113,16 +114,13 @@ describe("inquirer-directory", function() {
         this.prompt.run();
         expect(this.rl.output.__raw__).to.not.contain("Search:");
         this.rl.keyPress("/");
-        var raw = this.rl.output.__raw__.replace("❯", ">");
-        expect(raw).to.not.contain("> folder1");
+        expect(this.rl.output.__raw__).to.not.contain(figures.pointer + " folder1");
         expect(this.rl.output.__raw__).to.contain("Search:");
         this.rl.keyPress("f");
 
-        raw = this.rl.output.__raw__.replace("❯", ">");
-        expect(raw).to.have.string("> folder1");
+        expect(this.rl.output.__raw__).to.have.string(figures.pointer + " folder1");
         this.rl.sendWord("older2");
-        raw = this.rl.output.__raw__.replace("❯", ">");
-        expect(raw).to.contain("> folder2");
+        expect(this.rl.output.__raw__).to.contain(figures.pointer + " folder2");
     });
 
     it("should allow users to select a folder using 'choose this directory' choice", function() {
