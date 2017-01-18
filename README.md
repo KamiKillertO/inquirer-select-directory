@@ -1,6 +1,6 @@
 # inquirer-select-directory
 
-A directory prompt for Inquirer.js [inquirer](https://github.com/SBoudrias/Inquirer.js).
+A directory prompt for [Inquirer.js](https://github.com/SBoudrias/Inquirer.js).
 
 This project is a fork of [Inquirer-directory](https://github.com/nicksrandall/inquirer-directory) which does not limit the navigation to the current folder.
 
