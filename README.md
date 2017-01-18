@@ -6,17 +6,17 @@ This project is a fork of [Inquirer-directory](https://github.com/nicksrandall/i
 
 <!--[![Issue Count](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory/badges/issue_count.svg)](https://codeclimate.com/github/KamiKillertO/inquirer-select-directory)!-->
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
-[![](https://img.shields.io/badge/release-v1.0.2-blue.svg)](https://github.com/KamiKillertO/inquirer-select-directory/releases/tag/v1.0.2)
+[![](https://img.shields.io/badge/release-v1.1.0-blue.svg)](https://github.com/KamiKillertO/inquirer-select-directory/releases/tag/v1.1.0)
 [![Build Status](https://travis-ci.org/KamiKillertO/inquirer-select-directory.svg)](https://travis-ci.org/KamiKillertO/inquirer-select-directory)
 [![Build status](https://ci.appveyor.com/api/projects/status/fdyk5g3y56381742?svg=true)](https://ci.appveyor.com/project/KamiKillertO/inquirer-select-directory)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6a963539c4440b69356649c0048ea30)](https://www.codacy.com/app/kamikillerto/inquirer-select-directory?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KamiKillertO/inquirer-select-directory&amp;utm_campaign=Badge_Grade)
-<!--
+
 ## Installation
 
 ```bash
 npm install --save inquirer-select-directory
 ```
--->
+
 ## Features
 
 -   Support for symlinked files
@@ -46,13 +46,13 @@ Change `directory` to whatever you might prefer.
 
 ### Options
 
-Takes `type`, `name`, `message`, `basePath` properties.
+Takes `type`, `name`, `message`, `basePath`, `options` properties.
 
 See [inquirer](https://github.com/SBoudrias/Inquirer.js) readme for meaning of all except **basePath**.
 
 **basePath** is the relative path from your current working directory
 
-#### Example
+#### [Example](https://github.com/KamiKillertO/inquirer-select-directory/tree/develop/example/example.js)
 
 ```javascript
 inquirer.registerPrompt('directory', require('inquirer-directory'));
@@ -61,16 +61,29 @@ inquirer.prompt([{
   name: 'from',
   message: 'Where you like to put this component?',
   basePath: './src'
-}], function(answers) {
+}]).then(function(answers) {
   //etc
 });
 ```
-<!--
-[![asciicast](https://asciinema.org/a/31651.png)](https://asciinema.org/a/31651)
--->
-<!--
-See also [example.js](https://github.com/nicksrandall/inquierer-directory/blob/master/example.js) for a working example
--->
+
+#### options.displayHidden
+
+default ***false***
+
+Set this to true if you to display hidden folders 
+
+```javascript
+inquirer.prompt([{
+  type: 'directory',
+  //...
+  options: {
+      displayHidden:true
+  }
+}]).then(function(answers) {
+  //etc
+});
+```
+
 ## License
 
 MIT
