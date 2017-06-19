@@ -1,6 +1,6 @@
 {
   "name": "inquirer-select-directory",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "A directory prompt for Inquirer.js",
   "main": "src/index.js",
   "scripts": {
@@ -25,18 +25,18 @@
   "homepage": "https://github.com/KamiKillertO/inquirer-select-directory#readme",
   "dependencies": {
     "chalk": "1.1.1",
-    "cli-cursor": "1.0.2",
+    "cli-cursor": "2.0.0",
     "figures": "2.0.0",
     "inquirer": "3.0.2",
     "rx-lite": "4.0.8",
     "util": "0.10.3"
   },
   "devDependencies": {
-    "lodash": "4.17.3",
     "chai": "3.4.1",
     "events": "1.1.0",
-    "mocha": "3.2.0",
+    "lodash": "4.17.4",
+    "mocha": "3.4.1",
     "mock-fs": "3.12.1",
-    "sinon": "1.17.2"
+    "sinon": "1.17.7"
   }
 }

@@ -118,19 +118,23 @@ Prompt.prototype._run = function(callback) {
 
     var keyUps = events.keypress.filter(function(evt) {
        return evt.key.name === 'up';
-   }).share();
+    }).share();
 
-   var keyDowns = events.keypress.filter(function(evt) {
-       return evt.key.name === 'down';
-   }).share();
+    var keyDowns = events.keypress.filter(function(evt) {
+        return evt.key.name === 'down';
+    }).share();
 
-   var keySlash = events.keypress.filter(function(evt) {
-       return evt.value === '/' && !self.searchMode;
-   }).share();
+    var keySlash = events.keypress.filter(function(evt) {
+        return evt.value === '/' && !self.searchMode;
+    }).share();
 
-   var keyMinus = events.keypress.filter(function(evt) {
-       return evt.value === '-' && !self.searchMode;
-   }).share();
+    var keyMinus = events.keypress.filter(function(evt) {
+        return evt.value === '-' && !self.searchMode;
+    }).share();
+
+    var dotKey = events.keypress.filter(function(evt) {
+        return  evt.value === '.' && !self.searchMode;
+    }).share();
 
     var alphaNumeric = events.keypress.filter(function(evt) {
         return evt.key.name === 'backspace' || alphaNumericRegex.test(evt.value);
@@ -167,6 +171,7 @@ Prompt.prototype._run = function(callback) {
     keyUps.takeUntil(outcome.done).forEach(this.onUpKey.bind(this));
     keyDowns.takeUntil(outcome.done).forEach(this.onDownKey.bind(this));
     keyMinus.takeUntil(outcome.done).forEach(this.handleBack.bind(this));
+    dotKey.takeUntil(outcome.done).forEach(this.onSubmit.bind(this));
     events.keypress.takeUntil(outcome.done).forEach(this.hideKeyPress.bind(this));
     searchTerm.takeUntil(outcome.done).forEach(this.onKeyPress.bind(this));
     outcome.done.forEach(this.onSubmit.bind(this));

@@ -35,7 +35,7 @@ npm install --save inquirer-select-directory
 This prompt is anonymous, meaning you can register this prompt with the type name you please:
 
 ```javascript
-inquirer.registerPrompt('directory', require('inquirer-directory'));
+inquirer.registerPrompt('directory', require('inquirer-select-directory'));
 inquirer.prompt({
   type: 'directory',
   ...
@@ -55,7 +55,7 @@ See [inquirer](https://github.com/SBoudrias/Inquirer.js) readme for meaning of a
 #### [Example](https://github.com/KamiKillertO/inquirer-select-directory/tree/develop/example/example.js)
 
 ```javascript
-inquirer.registerPrompt('directory', require('inquirer-directory'));
+inquirer.registerPrompt('directory', require('inquirer-select-directory'));
 inquirer.prompt([{
   type: 'directory',
   name: 'from',
