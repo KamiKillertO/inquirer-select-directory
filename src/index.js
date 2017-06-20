@@ -87,7 +87,11 @@ function Prompt() {
     if (!this.opt.basePath) {
         this.throwParamError('basePath');
     }
-    this.opt.displayHidden = this.opt.displayHidden || false;
+    try {
+        this.opt.displayHidden = this.opt.options.displayHidden;
+    } catch (e) {
+        this.opt.displayHidden = false;
+    }
     this.currentPath = path.isAbsolute(this.opt.basePath) ? path.resolve(this.opt.basePath) : path.resolve(process.cwd(), this.opt.basePath);
     this.root = path.parse(this.currentPath).root;
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
