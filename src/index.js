@@ -32,7 +32,7 @@ function listRender(choices, pointer) {
     var output = '';
     var separatorOffset = 0;
 
-    choices.forEach(function(choice, index) {
+    choices.forEach(function (choice, index) {
         if (choice.type === 'separator') {
             separatorOffset++;
             output += "  " + choice + "\n";
@@ -40,9 +40,21 @@ function listRender(choices, pointer) {
         }
 
         var isSelected = (index - separatorOffset === pointer);
-        var line = (isSelected ? figures.pointer + ' ' : '  ') + choice.name;
+        var line = (isSelected ? figures.pointer + ' ' : '  ');
+
+        if (choice.isDirectory) {
+          if (choice.name === '.') {
+            line += '📂  ';
+          } else {
+            line += '📁  ';
+          }
+        }
+        if (choice.isFile) {
+          line += '📄  ';
+        }
+        line += choice.name;
         if (isSelected) {
-            line = chalk.cyan(line);
+          line = chalk.cyan(line);
         }
         output += line + ' \n';
     });
@@ -77,6 +89,22 @@ function getDirectories(basePath, displayHidden) {
             }
         })
         .sort();
+}
+
+function updateChoices(choices, basePath) {
+  choices.forEach(function (choice, i) {
+    if (choice.type === undefined) {
+      try {
+        var stats = fs.lstatSync(path.join(basePath, choice.value));
+        choice.isDirectory = stats.isDirectory();
+        choice.isFile = stats.isFile();
+        choices[i] = choice;
+      } catch (error) {
+        // console.log(error);
+      }
+    }
+  });
+  return choices;
 }
 
 /**
@@ -189,7 +217,8 @@ Prompt.prototype._run = function(callback) {
  * @return {Prompt} self
  */
 
-Prompt.prototype.render = function() {
+Prompt.prototype.render = function () {
+    updateChoices(this.opt.choices, this.opt.basePath);
     // Render question
     var message = this.getQuestion();
 
