@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/KamiKillertO/inquirer-select-directory#readme",
   "dependencies": {
-    "chalk": "1.1.1",
+    "chalk": "2.2.2",
     "cli-cursor": "2.0.0",
     "figures": "2.0.0",
     "inquirer": "2.0.0",
