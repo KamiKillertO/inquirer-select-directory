@@ -119,13 +119,13 @@ describe("inquirer-directory", function () {
       this.prompt.run();
       expect(this.rl.output.__raw__).to.not.contain("Search:");
       this.rl.keyPress("/");
-      expect(this.rl.output.__raw__).to.not.contain(figures.pointer + " folder1");
+      expect(this.rl.output.__raw__).to.not.contain(figures.pointer + " 📂  folder1");
       expect(this.rl.output.__raw__).to.contain("Search:");
       this.rl.keyPress("f");
 
-      expect(this.rl.output.__raw__).to.have.string(figures.pointer + " folder1");
+      expect(this.rl.output.__raw__).to.have.string(figures.pointer + " 📁  folder1");
       this.rl.sendWord("older2");
-      expect(this.rl.output.__raw__).to.contain(figures.pointer + " folder2");
+      expect(this.rl.output.__raw__).to.contain(figures.pointer + " 📁  folder2");
     });
 
     it("should allow users to select a folder using 'choose this directory' choice", function () {
