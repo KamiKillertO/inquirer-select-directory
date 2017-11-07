@@ -43,11 +43,7 @@ function listRender(choices, pointer) {
         var line = (isSelected ? figures.pointer + ' ' : '  ');
 
         if (choice.isDirectory) {
-          if (choice.name === '.') {
-            line += '📂  ';
-          } else {
-            line += '📁  ';
-          }
+          line += '📂  ';
         }
         if (choice.isFile) {
           line += '📄  ';
