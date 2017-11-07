@@ -54,24 +54,25 @@ function listRender(choices, pointer) {
  * Function for getting list of folders in directory
  * @param  {String} basePath                the path the folder to get a list of containing folders
  * @param  {Boolean} [displayHidden=false]  set to true if you want to get hidden files
+ * @param  {Boolean} [displayFiles=false]  set to true if you want to get files
  * @return {Array}                          array of folder names inside of basePath
  */
-function getDirectories(basePath, displayHidden) {
-    displayHidden = displayHidden || false;
+function getDirectoryContent(basePath, displayHidden, displayFiles) {
     return fs
         .readdirSync(basePath)
-        .filter(function(file) {
-           try {
+        .filter(function (file) {
+            try {
                 var stats = fs.lstatSync(path.join(basePath, file));
                 if (stats.isSymbolicLink()) {
                     return false;
                 }
                 var isDir = stats.isDirectory();
+                var isFile = stats.isFile() && displayFiles;
                 if (displayHidden) {
-                    return isDir;
+                  return isDir || displayFiles;
                 }
                 var isNotDotFile = path.basename(file).indexOf(".") !== 0;
-                return isDir && isNotDotFile;
+                return (isDir || isFile) && isNotDotFile;
             } catch (error) {
                 return false;
             }
@@ -88,6 +89,11 @@ function Prompt() {
         this.throwParamError('basePath');
     }
     this.opt.displayHidden = this.opt.displayHidden || false;
+    try {
+        this.opt.displayFiles = this.opt.options.displayFiles;
+    } catch (e) {
+        this.opt.displayFiles = false;
+    }
     this.currentPath = path.isAbsolute(this.opt.basePath) ? path.resolve(this.opt.basePath) : path.resolve(process.cwd(), this.opt.basePath);
     this.root = path.parse(this.currentPath).root;
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
@@ -319,7 +325,7 @@ Prompt.prototype.onKeyPress = function(/*e*/) {
  * Helper to create new choices based on previous selection.
  */
 Prompt.prototype.createChoices = function(basePath) {
-    var choices = getDirectories(basePath, this.opt.displayHidden);
+    var choices = getDirectoryContent(basePath, this.opt.displayHidden, this.opt.displayFiles);
     if (basePath !== this.root) {
       choices.unshift(BACK);
     }

@@ -207,6 +207,44 @@ describe("inquirer-directory", function () {
       expect(this.rl.output.__raw__).to.contain(".git");
     });
   });
+   describe("display files ", function () {
+
+    before(function () {
+      mock({
+        "root": {
+          ".git": {},
+          "folder1": {
+            "folder1-1": {}
+          },
+          "folder2": {},
+          "zfolder2": {},
+          "some.png": new Buffer([8, 6, 7, 5, 3, 0, 9]),
+          "a-symlink": mock.symlink({
+            path: "folder1"
+          })
+        }
+      });
+      this.rl = new ReadlineStub();
+      this.prompt = new Prompt({
+        message: "Choose a directory",
+        name: "name",
+        basePath: "./root/",
+        options: {
+          displayFiles: true
+        }
+      }, this.rl);
+    });
+
+    after(function () {
+      mock.restore();
+      this.rl.output.clear();
+    });
+
+    it("should contain files", function () {
+      this.prompt.run();
+      expect(this.rl.output.__raw__).to.contain("some.png");
+    });
+  });
   // not sure yet
   // it("should allow users to press keys to shortcut to that value", function (done) {
   //     prompt.run(function (answer) {
