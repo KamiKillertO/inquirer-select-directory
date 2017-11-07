@@ -193,7 +193,9 @@ describe("inquirer-directory", function () {
         message: "Choose a directory",
         name: "name",
         basePath: "./root/",
-        displayHidden: "true"
+        options: {
+          displayHidden: "true"
+        }
       }, this.rl);
     });
 
