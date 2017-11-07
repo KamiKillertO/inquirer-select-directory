@@ -146,7 +146,7 @@ Prompt.prototype._run = function(callback) {
     var self = this;
     self.searchMode = false;
     this.done = callback;
-    var alphaNumericRegex = /\w|\.|\-/i;
+    var alphaNumericRegex = /\w|\.|-/i;
     var events = observe(this.rl);
 
 
