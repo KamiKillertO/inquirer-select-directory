@@ -31,7 +31,6 @@ npm install --save inquirer-select-directory
 
 ## Usage
 
-
 This prompt is anonymous, meaning you can register this prompt with the type name you please:
 
 ```javascript
@@ -44,7 +43,7 @@ inquirer.prompt({
 
 Change `directory` to whatever you might prefer.
 
-### Options
+### Parameters
 
 Takes `type`, `name`, `message`, `basePath`, `options` properties.
 
@@ -66,11 +65,31 @@ inquirer.prompt([{
 });
 ```
 
+### Options
+
+#### options.displayFiles
+
+default ***false***
+
+Set this to true if you to display files
+
+```javascript
+inquirer.prompt([{
+  type: 'directory',
+  //...
+  options: {
+      displayFiles:true
+  }
+}]).then(function(answers) {
+  //etc
+});
+```
+
 #### options.displayHidden
 
 default ***false***
 
-Set this to true if you to display hidden folders 
+Set this to true if you to display hidden folders (and files if displayFiles is set to `true`) 
 
 ```javascript
 inquirer.prompt([{
