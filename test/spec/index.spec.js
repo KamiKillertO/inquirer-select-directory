@@ -119,13 +119,13 @@ describe("inquirer-directory", function () {
       this.prompt.run();
       expect(this.rl.output.__raw__).to.not.contain("Search:");
       this.rl.keyPress("/");
-      expect(this.rl.output.__raw__).to.not.contain(figures.pointer + " folder1");
+      expect(this.rl.output.__raw__).to.not.contain(figures.pointer + " 📂  folder1");
       expect(this.rl.output.__raw__).to.contain("Search:");
       this.rl.keyPress("f");
 
-      expect(this.rl.output.__raw__).to.have.string(figures.pointer + " folder1");
+      expect(this.rl.output.__raw__).to.have.string(figures.pointer + " 📁  folder1");
       this.rl.sendWord("older2");
-      expect(this.rl.output.__raw__).to.contain(figures.pointer + " folder2");
+      expect(this.rl.output.__raw__).to.contain(figures.pointer + " 📁  folder2");
     });
 
     it("should allow users to select a folder using 'choose this directory' choice", function () {
@@ -193,7 +193,9 @@ describe("inquirer-directory", function () {
         message: "Choose a directory",
         name: "name",
         basePath: "./root/",
-        displayHidden: "true"
+        options: {
+          displayHidden: "true"
+        }
       }, this.rl);
     });
 
@@ -205,6 +207,44 @@ describe("inquirer-directory", function () {
     it("should contain folders starting with '.' (private folders)", function () {
       this.prompt.run();
       expect(this.rl.output.__raw__).to.contain(".git");
+    });
+  });
+   describe("display files ", function () {
+
+    before(function () {
+      mock({
+        "root": {
+          ".git": {},
+          "folder1": {
+            "folder1-1": {}
+          },
+          "folder2": {},
+          "zfolder2": {},
+          "some.png": new Buffer([8, 6, 7, 5, 3, 0, 9]),
+          "a-symlink": mock.symlink({
+            path: "folder1"
+          })
+        }
+      });
+      this.rl = new ReadlineStub();
+      this.prompt = new Prompt({
+        message: "Choose a directory",
+        name: "name",
+        basePath: "./root/",
+        options: {
+          displayFiles: true
+        }
+      }, this.rl);
+    });
+
+    after(function () {
+      mock.restore();
+      this.rl.output.clear();
+    });
+
+    it("should contain files", function () {
+      this.prompt.run();
+      expect(this.rl.output.__raw__).to.contain("some.png");
     });
   });
   // not sure yet

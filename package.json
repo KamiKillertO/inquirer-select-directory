@@ -1,6 +1,6 @@
 {
   "name": "inquirer-select-directory",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A directory prompt for Inquirer.js",
   "main": "src/index.js",
   "scripts": {
@@ -28,14 +28,13 @@
     "cli-cursor": "2.0.0",
     "figures": "2.0.0",
     "inquirer": "2.0.0",
-    "rx-lite": "4.0.8",
-    "util": "0.10.3"
+    "rx-lite": "4.0.8"
   },
   "devDependencies": {
     "chai": "3.4.1",
     "events": "1.1.0",
     "lodash": "4.17.4",
-    "mocha": "3.4.1",
+    "mocha": "4.0.1",
     "mock-fs": "3.12.1",
     "sinon": "1.17.7"
   }

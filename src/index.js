@@ -32,7 +32,7 @@ function listRender(choices, pointer) {
     var output = '';
     var separatorOffset = 0;
 
-    choices.forEach(function(choice, index) {
+    choices.forEach(function (choice, index) {
         if (choice.type === 'separator') {
             separatorOffset++;
             output += "  " + choice + "\n";
@@ -40,9 +40,21 @@ function listRender(choices, pointer) {
         }
 
         var isSelected = (index - separatorOffset === pointer);
-        var line = (isSelected ? figures.pointer + ' ' : '  ') + choice.name;
+        var line = (isSelected ? figures.pointer + ' ' : '  ');
+
+        if (choice.isDirectory) {
+          if (choice.name === '.') {
+            line += '📂  ';
+          } else {
+            line += '📁  ';
+          }
+        }
+        if (choice.isFile) {
+          line += '📄  ';
+        }
+        line += choice.name;
         if (isSelected) {
-            line = chalk.cyan(line);
+          line = chalk.cyan(line);
         }
         output += line + ' \n';
     });
@@ -54,29 +66,46 @@ function listRender(choices, pointer) {
  * Function for getting list of folders in directory
  * @param  {String} basePath                the path the folder to get a list of containing folders
  * @param  {Boolean} [displayHidden=false]  set to true if you want to get hidden files
+ * @param  {Boolean} [displayFiles=false]  set to true if you want to get files
  * @return {Array}                          array of folder names inside of basePath
  */
-function getDirectories(basePath, displayHidden) {
-    displayHidden = displayHidden || false;
+function getDirectoryContent(basePath, displayHidden, displayFiles) {
     return fs
         .readdirSync(basePath)
-        .filter(function(file) {
-           try {
+        .filter(function (file) {
+            try {
                 var stats = fs.lstatSync(path.join(basePath, file));
                 if (stats.isSymbolicLink()) {
                     return false;
                 }
                 var isDir = stats.isDirectory();
+                var isFile = stats.isFile() && displayFiles;
                 if (displayHidden) {
-                    return isDir;
+                  return isDir || displayFiles;
                 }
                 var isNotDotFile = path.basename(file).indexOf(".") !== 0;
-                return isDir && isNotDotFile;
+                return (isDir || isFile) && isNotDotFile;
             } catch (error) {
                 return false;
             }
         })
         .sort();
+}
+
+function updateChoices(choices, basePath) {
+  choices.forEach(function (choice, i) {
+    if (choice.type === undefined) {
+      try {
+        var stats = fs.lstatSync(path.join(basePath, choice.value));
+        choice.isDirectory = stats.isDirectory();
+        choice.isFile = stats.isFile();
+        choices[i] = choice;
+      } catch (error) {
+        // console.log(error);
+      }
+    }
+  });
+  return choices;
 }
 
 /**
@@ -87,7 +116,17 @@ function Prompt() {
     if (!this.opt.basePath) {
         this.throwParamError('basePath');
     }
-    this.opt.displayHidden = this.opt.displayHidden || false;
+    try {
+        this.opt.displayHidden = this.opt.options.displayHidden;
+    } catch (e) {
+        this.opt.displayHidden = false;
+    }
+
+    try {
+        this.opt.displayFiles = this.opt.options.displayFiles;
+    } catch (e) {
+        this.opt.displayFiles = false;
+    }
     this.currentPath = path.isAbsolute(this.opt.basePath) ? path.resolve(this.opt.basePath) : path.resolve(process.cwd(), this.opt.basePath);
     this.root = path.parse(this.currentPath).root;
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
@@ -108,45 +147,45 @@ util.inherits(Prompt, Base);
  * @return {this}
  */
 
-Prompt.prototype._run = function(callback) {
+Prompt.prototype._run = function (callback) {
     var self = this;
     self.searchMode = false;
     this.done = callback;
-    var alphaNumericRegex = /\w|\.|\-/i;
+    var alphaNumericRegex = /\w|\.|-/i;
     var events = observe(this.rl);
 
 
-    var keyUps = events.keypress.filter(function(evt) {
-       return evt.key.name === 'up';
+    var keyUps = events.keypress.filter(function (evt) {
+        return evt.key.name === 'up';
     }).share();
 
-    var keyDowns = events.keypress.filter(function(evt) {
+    var keyDowns = events.keypress.filter(function (evt) {
         return evt.key.name === 'down';
     }).share();
 
-    var keySlash = events.keypress.filter(function(evt) {
+    var keySlash = events.keypress.filter(function (evt) {
         return evt.value === '/' && !self.searchMode;
     }).share();
 
-    var keyMinus = events.keypress.filter(function(evt) {
+    var keyMinus = events.keypress.filter(function (evt) {
         return evt.value === '-' && !self.searchMode;
     }).share();
 
-    var dotKey = events.keypress.filter(function(evt) {
-        return  evt.value === '.' && !self.searchMode;
+    var dotKey = events.keypress.filter(function (evt) {
+        return evt.value === '.' && !self.searchMode;
     }).share();
 
-    var alphaNumeric = events.keypress.filter(function(evt) {
+    var alphaNumeric = events.keypress.filter(function (evt) {
         return evt.key.name === 'backspace' || alphaNumericRegex.test(evt.value);
     }).share();
 
-    var searchTerm = keySlash.flatMap(function() {
+    var searchTerm = keySlash.flatMap(function () {
         self.searchMode = true;
         self.searchTerm = '';
         self.render();
         var end$ = new rx.Subject();
         var done$ = rx.Observable.merge(events.line, end$);
-        return alphaNumeric.map(function(evt) {
+        return alphaNumeric.map(function (evt) {
                 if (evt.key.name === 'backspace' && self.searchTerm.length) {
                     self.searchTerm = self.searchTerm.slice(0, -1);
                 } else if (evt.value) {
@@ -158,7 +197,7 @@ Prompt.prototype._run = function(callback) {
                 return self.searchTerm;
             })
             .takeUntil(done$)
-            .doOnCompleted(function() {
+            .doOnCompleted(function () {
                 self.searchMode = false;
                 self.render();
                 return false;
@@ -189,7 +228,8 @@ Prompt.prototype._run = function(callback) {
  * @return {Prompt} self
  */
 
-Prompt.prototype.render = function() {
+Prompt.prototype.render = function () {
+    updateChoices(this.opt.choices, this.opt.basePath);
     // Render question
     var message = this.getQuestion();
 
@@ -218,20 +258,20 @@ Prompt.prototype.render = function() {
  * @param {any} e
  * @returns
  */
-Prompt.prototype.handleSubmit = function(e) {
+Prompt.prototype.handleSubmit = function (e) {
     var self = this;
-    var obx = e.map(function() {
+    var obx = e.map(function () {
         return self.opt.choices.getChoice(self.selected).value;
     }).share();
 
-    var done = obx.filter(function(choice) {
+    var done = obx.filter(function (choice) {
         return choice === CHOOSE || choice === CURRENT;
     }).take(1);
-    var back = obx.filter(function(choice) {
+    var back = obx.filter(function (choice) {
         return choice === BACK;
     }).takeUntil(done);
 
-    var drill = obx.filter(function(choice) {
+    var drill = obx.filter(function (choice) {
         return choice !== BACK && choice !== CHOOSE && choice !== CURRENT;
     }).takeUntil(done);
 
@@ -245,7 +285,7 @@ Prompt.prototype.handleSubmit = function(e) {
 /**
  *  when user selects to drill into a folder (by selecting folder name)
  */
-Prompt.prototype.handleDrill = function() {
+Prompt.prototype.handleDrill = function () {
     var choice = this.opt.choices.getChoice(this.selected);
     this.currentPath = path.join(this.currentPath, choice.value);
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
@@ -256,7 +296,7 @@ Prompt.prototype.handleDrill = function() {
 /**
  * when user selects ".. back"
  */
-Prompt.prototype.handleBack = function() {
+Prompt.prototype.handleBack = function () {
     this.currentPath = path.dirname(this.currentPath);
     this.opt.choices = new Choices(this.createChoices(this.currentPath), this.answers);
     this.selected = 0;
@@ -266,7 +306,7 @@ Prompt.prototype.handleBack = function() {
 /**
  * when user selects 'choose this folder'
  */
-Prompt.prototype.onSubmit = function(/*value*/) {
+Prompt.prototype.onSubmit = function ( /*value*/ ) {
     this.status = 'answered';
 
     // Rerender prompt
@@ -281,29 +321,29 @@ Prompt.prototype.onSubmit = function(/*value*/) {
 /**
  * When user press a key
  */
-Prompt.prototype.hideKeyPress = function() {
+Prompt.prototype.hideKeyPress = function () {
     if (!this.searchMode) {
         this.render();
     }
 };
 
-Prompt.prototype.onUpKey = function() {
+Prompt.prototype.onUpKey = function () {
     var len = this.opt.choices.realLength;
     this.selected = (this.selected > 0) ? this.selected - 1 : len - 1;
     this.render();
 };
 
-Prompt.prototype.onDownKey = function() {
+Prompt.prototype.onDownKey = function () {
     var len = this.opt.choices.realLength;
     this.selected = (this.selected < len - 1) ? this.selected + 1 : 0;
     this.render();
 };
 
-Prompt.prototype.onSlashKey = function(/*e*/) {
+Prompt.prototype.onSlashKey = function ( /*e*/ ) {
     this.render();
 };
 
-Prompt.prototype.onKeyPress = function(/*e*/) {
+Prompt.prototype.onKeyPress = function ( /*e*/ ) {
     var item;
     for (var index = 0; index < this.opt.choices.realLength; index++) {
         item = this.opt.choices.realChoices[index].name.toLowerCase();
@@ -318,10 +358,10 @@ Prompt.prototype.onKeyPress = function(/*e*/) {
 /**
  * Helper to create new choices based on previous selection.
  */
-Prompt.prototype.createChoices = function(basePath) {
-    var choices = getDirectories(basePath, this.opt.displayHidden);
+Prompt.prototype.createChoices = function (basePath) {
+    var choices = getDirectoryContent(basePath, this.opt.displayHidden, this.opt.displayFiles);
     if (basePath !== this.root) {
-      choices.unshift(BACK);
+        choices.unshift(BACK);
     }
     choices.unshift(CURRENT);
     if (choices.length > 0) {
@@ -339,7 +379,5 @@ Prompt.prototype.createChoices = function(basePath) {
 
 module.exports = Prompt;
 
-
-// TODO: Add option displayHidden id:0
-// TODO: Add option displayFile id:1
+// TODO: SEARCH DOES NOT SUPPORT UPPERCASE
 // TODO: Add theming option id:2
