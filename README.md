@@ -10,6 +10,7 @@ This project is a fork of [Inquirer-directory](https://github.com/nicksrandall/i
 [![Build Status](https://travis-ci.org/KamiKillertO/inquirer-select-directory.svg)](https://travis-ci.org/KamiKillertO/inquirer-select-directory)
 [![Build status](https://ci.appveyor.com/api/projects/status/fdyk5g3y56381742?svg=true)](https://ci.appveyor.com/project/KamiKillertO/inquirer-select-directory)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6a963539c4440b69356649c0048ea30)](https://www.codacy.com/app/kamikillerto/inquirer-select-directory?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=KamiKillertO/inquirer-select-directory&amp;utm_campaign=Badge_Grade)
+[![npm downloads](https://img.shields.io/npm/dt/inquirer-select-directory.svg)]()
 
 ## Installation
 
